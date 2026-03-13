@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+  <!-- Open Graph / Facebook / WhatsApp / LinkedIn -->
+  <meta property="og:type"        content="website">
+  <meta property="og:url"         content="https://ffa-argentina.github.io/HCDN-votaciones/">
+  <meta property="og:title"       content="HCDN Votaciones">
+  <meta property="og:description" content="Consultá las votaciones de la Honorable Cámara de Diputados de la Nación Argentina. Resultados, hemiciclo interactivo y ficha por diputado.">
+  <meta property="og:image"       content="https://ffa-argentina.github.io/HCDN-votaciones/og-preview.jpg">
+  <meta property="og:image:width"  content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale"      content="es_AR">
+  <meta property="og:site_name"   content="HCDN Votaciones">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card"        content="summary_large_image">
+  <meta name="twitter:url"         content="https://ffa-argentina.github.io/HCDN-votaciones/">
+  <meta name="twitter:title"       content="HCDN Votaciones">
+  <meta name="twitter:description" content="Consultá las votaciones de la Honorable Cámara de Diputados de la Nación Argentina.">
+  <meta name="twitter:image"       content="https://ffa-argentina.github.io/HCDN-votaciones/og-preview.jpg">
+
+  <!-- SEO general -->
+  <meta name="description" content="Consultá las votaciones de la Honorable Cámara de Diputados de la Nación Argentina. Resultados, hemiciclo interactivo y ficha por diputado.">
+  <meta name="keywords"    content="HCDN, Diputados, Argentina, votaciones, hemiciclo, legislativo">
+  <meta name="author"      content="ffa-argentina">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0B1628">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="HCDN Votaciones">
+  <link rel="apple-touch-icon" href="imagen_1.jpg">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HCDN — Panel de Votaciones</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;min-height:100vh;transition:background .25s,color .25s}
+body.light{background:#ECF0F8;color:#0B1830}
+body.dark {background:#07101E;color:#D8E4F4}
+
+/* ── HEADER ──────────────────────────────────────── */
+#header{position:fixed;top:0;left:0;right:0;z-index:500;height:54px;
+  background:#fff;display:flex;align-items:center;padding:0 16px;gap:10px;
+  box-shadow:0 2px 8px rgba(0,0,0,.08);border-bottom:1px solid #e0e6f0}
+body.dark #header{background:#0B1628;border-bottom-color:#1A2B40}
+#header-logo{height:34px;width:auto;flex-shrink:0;object-fit:contain}
+#header-text{flex:1;min-width:0}
+#header-sub{font-size:8px;font-weight:700;letter-spacing:2.2px;color:#5570A0;text-transform:uppercase}
+#header-title{font-size:13px;font-weight:700;color:#001450;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+body.dark #header-title{color:#D8E4F4}
+#toggle-wrap{display:flex;align-items:center;gap:6px;flex-shrink:0}
+#toggle-label{font-size:9px;font-weight:600;letter-spacing:1.4px;color:#5570A0;text-transform:uppercase}
+#toggle{width:42px;height:22px;border-radius:11px;cursor:pointer;border:1.5px solid #C0D0E4;background:#EEF2FA;position:relative;padding:0;transition:background .2s}
+#toggle-knob{position:absolute;top:1px;left:1px;width:18px;height:18px;border-radius:50%;background:#FFE240;transition:left .2s,background .2s;display:flex;align-items:center;justify-content:center}
+body.light #toggle{background:#EEF2FA}
+body.dark  #toggle{background:rgba(80,130,220,.3)}
+body.dark  #toggle-knob{left:21px;background:#7ABFFF}
+
+/* ── LAYOUT ──────────────────────────────────────── */
+#layout{display:flex;padding-top:54px;min-height:100vh}
+
+/* ── SIDEBAR ─────────────────────────────────────── */
+#sidebar{width:300px;flex-shrink:0;position:fixed;top:54px;left:0;bottom:0;
+  display:flex;flex-direction:column;overflow:hidden;transition:background .25s,border-color .25s;z-index:200}
+body.light #sidebar{background:#fff;border-right:1px solid #C8D4E6;box-shadow:2px 0 12px rgba(0,20,80,.06)}
+body.dark  #sidebar{background:#0B1628;border-right:1px solid #1A2B40}
+
+#sidebar-header{padding:12px 14px 8px;flex-shrink:0}
+#sidebar-title{font-size:9.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
+body.light #sidebar-title{color:#003AAA}
+body.dark  #sidebar-title{color:#5A8EE0}
+
+/* Search type tabs */
+#search-tabs{display:flex;gap:4px;margin-bottom:8px}
+.stab{flex:1;padding:5px 0;border-radius:5px;font-size:10px;font-weight:700;
+  letter-spacing:.4px;cursor:pointer;text-align:center;transition:all .13s;border:none}
+body.light .stab{background:#EEF2FA;color:#5570A0;border:1px solid #C0D0E4}
+body.dark  .stab{background:#101F38;color:#607898;border:1px solid #1C2E48}
+.stab.active{background:#003AAA;color:#fff;border-color:#003AAA}
+body.dark .stab.active{background:#1A4FAA;border-color:#1A4FAA}
+
+/* Search input */
+#search-wrap{position:relative;margin-bottom:7px}
+#search-wrap svg{position:absolute;left:8px;top:50%;transform:translateY(-50%);pointer-events:none;opacity:.5}
+#search-inp{width:100%;padding:6px 8px 6px 26px;border-radius:6px;font-size:11.5px;transition:border-color .15s,background .25s;touch-action:manipulation;-webkit-user-select:text;user-select:text;position:relative;z-index:1}
+body.light #search-inp{background:#EEF2FA;border:1px solid #C0D0E4;color:#0B1830}
+body.dark  #search-inp{background:#101F38;border:1px solid #1C2E48;color:#D8E4F4}
+#search-inp:focus{outline:2px solid #003AAA44;outline-offset:1px}
+
+/* Date pickers row */
+#date-row{display:flex;gap:6px;margin-bottom:7px}
+.d-input{flex:1;padding:5px 6px;border-radius:6px;font-size:11px;transition:border-color .15s,background .25s;min-width:0;touch-action:manipulation;-webkit-user-select:text;user-select:text}
+body.light .d-input{background:#EEF2FA;border:1px solid #C0D0E4;color:#0B1830}
+body.dark  .d-input{background:#101F38;border:1px solid #1C2E48;color:#D8E4F4}
+.d-input:focus{outline:2px solid #003AAA44;outline-offset:1px}
+#date-row label{font-size:9px;font-weight:700;color:#5570A0;letter-spacing:.5px;display:block;margin-bottom:2px}
+body.dark #date-row label{color:#607898}
+
+/* Result filter row */
+#res-row{display:flex;gap:4px;margin-bottom:8px}
+.rbtn{flex:1;padding:5px 0;border-radius:5px;font-size:10px;font-weight:700;
+  letter-spacing:.3px;cursor:pointer;text-align:center;transition:all .12s;border:none}
+body.light .rbtn{background:#EEF2FA;color:#5570A0;border:1px solid #C0D0E4}
+body.dark  .rbtn{background:#101F38;color:#607898;border:1px solid #1C2E48}
+.rbtn.act-all{background:#003AAA;color:#fff;border-color:#003AAA}
+body.dark .rbtn.act-all{background:#1A4FAA;border-color:#1A4FAA}
+.rbtn.act-aff{background:#16a34a;color:#fff;border-color:#16a34a}
+.rbtn.act-neg{background:#dc2626;color:#fff;border-color:#dc2626}
+
+/* Count badge */
+#list-count{font-size:9.5px;font-weight:700;letter-spacing:.5px;padding:3px 8px;
+  border-radius:4px;display:inline-block;margin-bottom:6px}
+body.light #list-count{background:#E8EFFE;color:#003AAA}
+body.dark  #list-count{background:#0C1828;color:#6A9EFF}
+
+/* Acta list */
+#acta-list{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:0 14px 14px;min-height:0}
+#acta-list::-webkit-scrollbar{width:4px}
+body.light #acta-list::-webkit-scrollbar-thumb{background:#C8D4E6}
+body.dark  #acta-list::-webkit-scrollbar-thumb{background:#1E3050}
+
+.a-item{display:flex;gap:7px;padding:7px 9px;border-radius:7px;cursor:pointer;
+  margin-bottom:3px;transition:background .13s;border:1px solid transparent}
+body.light .a-item:hover{background:#EEF4FF;border-color:#C8D4F0}
+body.dark  .a-item:hover{background:#0D1E38;border-color:#1A2E50}
+.a-item.selected{border-color:#003AAA55}
+body.light .a-item.selected{background:#EEF4FF}
+body.dark  .a-item.selected{background:#0D1E38}
+
+.a-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.a-info{flex:1;min-width:0}
+.a-top{display:flex;align-items:baseline;gap:5px;flex-wrap:wrap;margin-bottom:2px}
+.a-num{font-size:9.5px;font-weight:800;letter-spacing:.5px;flex-shrink:0}
+body.light .a-num{color:#5570A0}
+body.dark  .a-num{color:#3A5878}
+.a-fecha{font-size:9.5px;font-weight:600;flex-shrink:0}
+body.light .a-fecha{color:#8899BB}
+body.dark  .a-fecha{color:#2E4060}
+.a-res{font-size:8.5px;font-weight:800;letter-spacing:.6px;padding:1px 5px;
+  border-radius:3px;flex-shrink:0}
+.a-res-aff{background:#F0FDF4;color:#16a34a;border:1px solid #16a34a44}
+.a-res-neg{background:#FEF2F2;color:#dc2626;border:1px solid #dc262644}
+body.dark .a-res-aff{background:#0A1E0E;color:#4ade80}
+body.dark .a-res-neg{background:#1C0A0A;color:#f87171}
+.a-tit{font-size:10.5px;font-weight:600;line-height:1.35;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:all .15s}
+.a-tit.expanded{white-space:normal;overflow:visible;text-overflow:unset}
+body.light .a-tit{color:#1A2A50}
+body.dark  .a-tit{color:#B8CCEC}
+.a-data-badge{font-size:8px;font-weight:700;letter-spacing:.3px;
+  color:#2563eb;opacity:.6;flex-shrink:0;align-self:center}
+
+/* ── MAIN ─────────────────────────────────────────── */
+#main{margin-left:300px;flex:1;padding:10px 14px 30px;
+  transition:padding .25s}
+body.ficha-open #main{padding-right:314px}
+
+/* ── CARDS ─────────────────────────────────────────── */
+.card{border-radius:9px;padding:11px 16px;margin-bottom:10px;transition:background .25s,border-color .25s}
+body.light .card{background:#fff;border:1px solid #C8D4E6}
+body.dark  .card{background:#0E1A2E;border:1px solid #1A2B40}
+
+/* ── ACTA HEADER ────────────────────────────────────── */
+#acta-wrap{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
+#acta-label{font-size:9px;font-weight:700;letter-spacing:2px;color:#003AAA;text-transform:uppercase;margin-bottom:3px}
+#acta-titulo{font-size:14px;font-weight:700;line-height:1.3;margin-bottom:3px}
+#acta-meta{font-size:10.5px}
+body.light #acta-meta{color:#5570A0}
+body.dark  #acta-meta{color:#607898}
+#resultado-badge{flex-shrink:0;padding:5px 13px;border-radius:6px;border:2px solid #16a34a;
+  color:#16a34a;font-size:11px;font-weight:800;letter-spacing:1.4px;
+  display:flex;align-items:center;gap:5px;white-space:nowrap}
+body.light #resultado-badge{background:#F0FDF4}
+body.dark  #resultado-badge{background:#0A1E0E}
+
+/* ── STAT GRID ──────────────────────────────────────── */
+#stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.stat{border-radius:9px;padding:10px 13px;cursor:pointer;transition:box-shadow .14s,background .25s,border-color .25s}
+body.light .stat{border:1px solid #C8D4E6}
+body.dark  .stat{border:1px solid #1A2B40}
+.stat-num{font-size:26px;font-weight:800;line-height:1}
+.stat-lbl{font-size:9px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;margin-top:2px}
+body.light .stat-lbl{color:#5570A0}
+body.dark  .stat-lbl{color:#607898}
+.stat-sel{font-size:10.5px;font-weight:700;margin-top:2px;display:none}
+
+/* ── FILTERS ─────────────────────────────────────────── */
+#filters{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.f-input,.f-select{padding:6px 8px;border-radius:6px;font-size:11.5px;transition:border-color .15s,background .25s}
+body.light .f-input,.f-select{background:#EEF2FA;border:1px solid #C0D0E4;color:#0B1830}
+body.dark  .f-input,.f-select{background:#101F38;border:1px solid #1C2E48;color:#D8E4F4}
+.f-input:focus,.f-select:focus{outline:2px solid #003AAA44;outline-offset:1px}
+#name-wrap{position:relative;flex:1 1 160px}
+#name-wrap svg{position:absolute;left:7px;top:50%;transform:translateY(-50%);pointer-events:none}
+#inp-name{width:100%;padding-left:24px}
+#inp-bloque{flex:1 1 140px}
+#inp-distrito{flex:1 1 110px}
+#voto-btns{display:flex;gap:4px;flex-wrap:wrap}
+.vbtn{padding:5px 9px;border-radius:5px;font-size:10px;font-weight:700;letter-spacing:.3px;cursor:pointer;transition:all .12s}
+body.light .vbtn{background:#EEF2FA;border:1px solid #C0D0E4;color:#5570A0}
+body.dark  .vbtn{background:#101F38;border:1px solid #1C2E48;color:#607898}
+#btn-clear{padding:5px 9px;border-radius:5px;font-size:10.5px;font-weight:600;cursor:pointer;background:transparent;display:flex;align-items:center;gap:4px;transition:border-color .14s}
+body.light #btn-clear{border:1px solid #C0D0E4;color:#5570A0}
+body.dark  #btn-clear{border:1px solid #1C2E48;color:#607898}
+#result-count{font-size:11px;font-weight:700;color:#002A80;padding:4px 9px;border-radius:5px;display:none}
+body.light #result-count{background:#E8EFFE}
+body.dark  #result-count{background:#0C1828;color:#6A9EFF}
+#filter-actions{display:none;gap:6px;align-items:center}
+
+/* ── HEMICICLO ───────────────────────────────────────── */
+#hemi-wrap{border-radius:12px;padding:10px 10px 6px;position:relative;margin-top:8px;
+  transition:background .25s,border-color .25s}
+body.light #hemi-wrap{background:#DDE5F2;border:1px solid #C8D4E6}
+body.dark  #hemi-wrap{background:#0A1220;border:1px solid #1A2B40}
+#hemi-subtitle{text-align:center;font-size:8.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px}
+body.light #hemi-subtitle{color:#6888B8}
+body.dark  #hemi-subtitle{color:#2E4560}
+#svg-hemi{width:100%;height:auto;display:block;overflow:visible;touch-action:none;position:relative;z-index:1}
+
+/* ── NO DATA OVERLAY ─────────────────────────────────── */
+#nodata-overlay{display:none;position:absolute;inset:0;border-radius:12px;pointer-events:none;
+  flex-direction:column;align-items:center;justify-content:center;
+  gap:10px;z-index:10;backdrop-filter:blur(1.5px)}
+body.light #nodata-overlay{background:rgba(238,242,249,.88)}
+body.dark  #nodata-overlay{background:rgba(10,18,32,.88)}
+#nodata-overlay p{font-size:11.5px;font-weight:700;text-align:center;
+  max-width:280px;line-height:1.55;letter-spacing:.15px}
+body.light #nodata-overlay p{color:#4460A0}
+body.dark  #nodata-overlay p{color:#3A5878}
+#nodata-overlay svg{opacity:.3}
+
+/* ── TOOLTIP ─────────────────────────────────────────── */
+#tooltip{position:absolute;border-radius:8px;padding:9px 12px;pointer-events:none;
+  z-index:100;width:210px;display:none;font-size:11.5px;transition:background .25s,border-color .25s}
+body.light #tooltip{background:#fff;box-shadow:0 6px 22px rgba(0,0,0,.14)}
+body.dark  #tooltip{background:#0E1A2E;box-shadow:0 6px 22px rgba(0,0,0,.35)}
+#tip-name{font-weight:700;line-height:1.3;margin-bottom:5px}
+#tip-bloque{font-size:10px;margin-bottom:3px}
+body.light #tip-bloque{color:#5570A0}
+body.dark  #tip-bloque{color:#607898}
+#tip-bloque-abr{font-weight:700;color:#003AAA}
+#tip-distrito{font-size:10px;display:flex;align-items:center;gap:4px;margin-bottom:5px}
+body.light #tip-distrito{color:#5570A0}
+body.dark  #tip-distrito{color:#607898}
+#tip-voto{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:800}
+#tip-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* ── LEGEND ──────────────────────────────────────────── */
+#legend{display:flex;justify-content:center;gap:18px;margin-top:6px;flex-wrap:wrap;padding-bottom:2px}
+.leg-item{display:flex;align-items:center;gap:5px;cursor:pointer;transition:opacity .14s}
+.leg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;transition:box-shadow .14s}
+.leg-txt{font-size:10px;font-weight:600;letter-spacing:.2px}
+body.light .leg-txt{color:#5570A0}
+body.dark  .leg-txt{color:#607898}
+.leg-cnt{font-weight:800}
+
+/* ── FOOTER ──────────────────────────────────────────── */
+#footer{margin-top:8px;text-align:center;font-size:9.5px;display:flex;align-items:center;justify-content:center;gap:5px}
+body.light #footer{color:#5570A0}
+body.dark  #footer{color:#607898}
+
+/* ── FICHA PANEL ──────────────────────────────────────── */
+#ficha-panel{position:fixed;top:54px;right:0;bottom:0;width:300px;z-index:400;
+  transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);
+  display:flex;flex-direction:column;overflow:hidden}
+#ficha-panel.open{transform:translateX(0)}
+body.light #ficha-panel{background:#fff;border-left:1px solid #C8D4E6;box-shadow:-8px 0 32px rgba(0,20,80,.10)}
+body.dark  #ficha-panel{background:#0B1628;border-left:1px solid #1A2B40;box-shadow:-8px 0 32px rgba(0,0,0,.40)}
+#ficha-accent{height:5px;flex-shrink:0;transition:background .2s}
+#ficha-close{position:absolute;top:12px;right:12px;background:none;border:none;
+  cursor:pointer;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;transition:background .15s;z-index:1}
+body.light #ficha-close{color:#6882A8}
+body.dark  #ficha-close{color:#4A6890}
+body.light #ficha-close:hover{background:#EEF2FA;color:#001450}
+body.dark  #ficha-close:hover{background:#1A2B40;color:#C0D4F0}
+#ficha-avatar{width:58px;height:58px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:20px;font-weight:800;letter-spacing:-.5px;
+  flex-shrink:0;margin:0 auto 14px;transition:background .2s,color .2s}
+#ficha-body{flex:1;overflow-y:auto;padding:22px 22px 28px;position:relative}
+#ficha-body::-webkit-scrollbar{width:4px}
+body.light #ficha-body::-webkit-scrollbar-thumb{background:#C8D4E6}
+body.dark  #ficha-body::-webkit-scrollbar-thumb{background:#1E3050}
+#ficha-nombre{font-size:15px;font-weight:800;line-height:1.3;text-align:center;
+  letter-spacing:.05px;margin-bottom:4px}
+body.light #ficha-nombre{color:#001450}
+body.dark  #ficha-nombre{color:#D8E4F4}
+#ficha-voto-pill{display:flex;align-items:center;justify-content:center;gap:6px;
+  margin:10px auto 20px;width:fit-content;padding:5px 14px;border-radius:20px;
+  font-size:10.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase}
+.ficha-divider{height:1px;margin:0 0 16px}
+body.light .ficha-divider{background:#EEF2FA}
+body.dark  .ficha-divider{background:#152338}
+.ficha-field{margin-bottom:14px}
+.ficha-label{font-size:8.5px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;margin-bottom:3px}
+body.light .ficha-label{color:#9EB0CC}
+body.dark  .ficha-label{color:#2E4A6A}
+.ficha-value{font-size:12.5px;font-weight:600;line-height:1.35}
+body.light .ficha-value{color:#1A2A50}
+body.dark  .ficha-value{color:#B8CCEC}
+#ficha-bloque-chip{display:inline-block;padding:3px 10px;border-radius:12px;
+  font-size:10px;font-weight:700;letter-spacing:.3px;margin-top:4px}
+body.light #ficha-bloque-chip{background:#EEF4FF;color:#003AAA;border:1px solid #C0D0F0}
+body.dark  #ficha-bloque-chip{background:#0D1E3A;color:#7AABFF;border:1px solid #1A3060}
+#ficha-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:100%;gap:10px;opacity:.45;padding:20px;text-align:center}
+#ficha-empty svg{opacity:.5}
+#ficha-empty p{font-size:11px;font-weight:600;letter-spacing:.3px;line-height:1.5}
+body.light #ficha-empty p{color:#5570A0}
+body.dark  #ficha-empty p{color:#3A5878}
+
+/* ── RESPONSIVE ──────────────────────────────────────── */
+/* ── HAMBURGER BUTTON (solo mobile) ─────────────────── */
+#menu-btn{display:none;align-items:center;justify-content:center;
+  width:36px;height:36px;border-radius:8px;border:1.5px solid #C0D0E4;
+  background:transparent;cursor:pointer;flex-shrink:0;padding:0;margin-right:4px}
+body.light #menu-btn{color:#003AAA}
+body.dark  #menu-btn{color:#5A8EE0;border-color:#1A2B40}
+
+/* ── OVERLAY (mobile sidebar backdrop) ──────────────── */
+#sidebar-overlay{display:none;position:fixed;inset:0;z-index:190;
+  background:rgba(0,0,0,.45);opacity:0;transition:opacity .25s;pointer-events:none}
+#sidebar-overlay.visible{opacity:1;pointer-events:auto}
+
+@media(max-width:900px){
+  #sidebar{width:270px}
+  #main{margin-left:270px}
+}
+
+@media(max-width:720px){
+  #menu-btn{display:flex}
+  #toggle-label{display:none}
+  #sidebar{
+    position:fixed;top:54px;left:0;bottom:0;
+    width:290px;max-width:85vw;
+    transform:translateX(-100%);
+    transition:transform .28s ease,background .25s,border-color .25s;
+    z-index:200;
+    height:calc(100vh - 54px);
+    display:flex;flex-direction:column;
+    overflow:hidden;
+  }
+  #sidebar.open{transform:translateX(0)}
+  #sidebar-header{flex-shrink:0}
+  #acta-list{
+    flex:1 1 0;
+    min-height:0;
+    overflow-y:scroll;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+    touch-action:pan-y;
+  }
+  #sidebar-overlay{display:block;pointer-events:none}
+  #sidebar-overlay.visible{pointer-events:auto}
+  #layout{flex-direction:column}
+  #main{margin-left:0;padding:10px 12px 30px}
+  body.ficha-open #main{padding-right:12px}
+  #stats{grid-template-columns:repeat(2,1fr)}
+  #ficha-panel{
+    width:100%!important;right:0!important;
+    top:auto!important;bottom:0!important;
+    height:65vh;min-height:300px;
+    transform:translateY(110%)!important;
+    border-left:none!important;
+    border-top:1px solid #C8D4E6;
+    border-radius:16px 16px 0 0
+  }
+  body.dark #ficha-panel{border-top-color:#1A2B40}
+  #ficha-panel.open{transform:translateY(0)!important}
+  #svg-hemi{overflow:hidden;z-index:1}
+  #acta-links{display:none!important}
+  #header-sub{display:none}
+  #header-title{font-size:12px}
+  #header-logo{height:28px}
+}
+
+@media(max-width:400px){
+  #stats{grid-template-columns:1fr 1fr}
+  #main{padding:8px 9px 24px}
+  #header-title{font-size:11px}
+}
+
+#header-author{display:flex;align-items:center;gap:6px;flex-shrink:0;margin-right:2px}
+#ffa-logo{height:24px;width:auto;flex-shrink:0;object-fit:contain}
+body.dark #ffa-logo{filter:brightness(1.15) saturate(1.1)}
+#author-text{font-size:8px;line-height:1.35;color:#5570A0;text-align:right;white-space:nowrap}
+body.dark #author-text{color:#7A9FC8}
+#author-text b{color:#001450;font-weight:800}
+body.dark #author-text b{color:#C8DCEF}
+#author-label{font-size:7px;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;color:#8BA0BE}
+body.dark #author-label{color:#4A6480}
+
+/* ── iOS: evitar auto-zoom en inputs (font-size mínimo 16px en mobile) ────── */
+@media(max-width:720px){
+  #search-inp,
+  .d-input,
+  .f-input,
+  .f-select,
+  #search-n,
+  #inp-name{
+    font-size:16px !important;
+  }
+}
+
+/* ── ZOOM CONTROL ────────────────────────────────────────── */
+#zoom-ctrl{
+  display:none; /* solo mobile lo activa */
+  align-items:center;gap:10px;
+  padding:10px 14px;
+  margin-top:8px;
+  border-radius:10px;
+}
+body.light #zoom-ctrl{background:#E4ECFA;border:1px solid #C8D4E6}
+body.dark  #zoom-ctrl{background:#0A1525;border:1px solid #1A2B40}
+#zoom-reset{
+  background:none;border:none;cursor:pointer;padding:4px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:6px;transition:background .13s;flex-shrink:0;
+  min-width:30px;min-height:30px;
+}
+body.light #zoom-reset{color:#003AAA}
+body.dark  #zoom-reset{color:#4A7AE0}
+body.light #zoom-reset:active{background:#D0DEFF}
+body.dark  #zoom-reset:active{background:#1A2B40}
+#zoom-range{
+  flex:1;height:4px;cursor:pointer;
+  -webkit-appearance:none;appearance:none;
+  border-radius:4px;outline:none;border:none;background:none;
+  padding:0;margin:0;
+}
+body.light #zoom-range{accent-color:#003AAA}
+body.dark  #zoom-range{accent-color:#4A7AE0}
+#zoom-range::-webkit-slider-runnable-track{height:6px;border-radius:3px}
+body.light #zoom-range::-webkit-slider-runnable-track{background:#B8CCDF}
+body.dark  #zoom-range::-webkit-slider-runnable-track{background:#1C2E48}
+#zoom-range::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;
+  width:24px;height:24px;border-radius:50%;margin-top:-9px;cursor:grab;
+}
+body.light #zoom-range::-webkit-slider-thumb{background:#003AAA;box-shadow:0 2px 6px rgba(0,58,170,.4)}
+body.dark  #zoom-range::-webkit-slider-thumb{background:#4A7AE0;box-shadow:0 2px 6px rgba(74,122,224,.4)}
+#zoom-range::-moz-range-thumb{width:24px;height:24px;border-radius:50%;border:none;cursor:grab}
+body.light #zoom-range::-moz-range-thumb{background:#003AAA}
+body.dark  #zoom-range::-moz-range-thumb{background:#4A7AE0}
+#zoom-label{
+  font-size:11px;font-weight:800;letter-spacing:.3px;
+  min-width:28px;text-align:right;flex-shrink:0;
+}
+body.light #zoom-label{color:#003AAA}
+body.dark  #zoom-label{color:#4A7AE0}
+
+/* ── ACTA LINKS ────────────────────────────────────────── */
+.acta-link{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:4px 9px;border-radius:5px;font-size:10px;font-weight:700;
+  letter-spacing:.3px;text-decoration:none;transition:background .13s,color .13s;
+  border:1px solid;
+}
+body.light .acta-link{background:#EEF4FF;color:#003AAA;border-color:#C0D0F0}
+body.dark  .acta-link{background:#0D1E3A;color:#7AABFF;border-color:#1A3060}
+body.light .acta-link:hover{background:#D8E8FF;border-color:#A0BCF0}
+body.dark  .acta-link:hover{background:#142040;border-color:#2A4080}
+
+/* ── PRESIDENTE ────────────────────────────────────────── */
+/* el círculo se renderiza dentro del SVG del hemiciclo */
+
+/* ── AUTOCOMPLETE ──────────────────────────────────────── */
+#ac-list{position:absolute;top:100%;left:0;right:0;z-index:500;
+  border-radius:0 0 7px 7px;max-height:180px;overflow-y:auto;
+  -webkit-overflow-scrolling:touch;display:none;
+  box-shadow:0 4px 16px rgba(0,20,80,.13)}
+body.light #ac-list{background:#fff;border:1px solid #C0D0E4;border-top:none}
+body.dark  #ac-list{background:#0F1E35;border:1px solid #1C2E48;border-top:none}
+.ac-item{padding:7px 10px;font-size:12px;cursor:pointer;display:flex;justify-content:space-between;gap:6px}
+body.light .ac-item:hover,.ac-item.ac-sel{background:#EEF4FF}
+body.dark  .ac-item:hover,.ac-item.ac-sel{background:#0D1E38}
+.ac-item-name{font-weight:600}
+body.light .ac-item-name{color:#1A2A50}
+body.dark  .ac-item-name{color:#B8CCEC}
+.ac-item-voto{font-size:10px;font-weight:700;border-radius:3px;padding:1px 5px}
+</style>
+</head>
+<body class="light">
+
+<div id="sidebar-overlay" onclick="closeSidebar()"></div>
+<header id="header">
+  <button id="menu-btn" onclick="toggleSidebar()" aria-label="Menú">
+    <svg width="18" height="14" viewBox="0 0 18 14" fill="none">
+      <rect y="0" width="18" height="2.2" rx="1.1" fill="currentColor"/>
+      <rect y="5.9" width="18" height="2.2" rx="1.1" fill="currentColor"/>
+      <rect y="11.8" width="18" height="2.2" rx="1.1" fill="currentColor"/>
+    </svg>
+  </button>
+  <img src="imagen_1.jpg" alt="HCDN Logo" id="header-logo">
+  <div id="header-text">
+    <div id="header-sub">H. Cámara de Diputados · República Argentina</div>
+    <div id="header-title">Votaciones Nominales · Panel Analítico</div>
+  </div>
+  <div id="header-author">
+    <div id="author-text">
+      <div id="author-label">Elaborado por</div>
+      <b>Fernando FASCIE</b>
+    </div>
+    <img id="ffa-logo" src="imagen_2.png" alt="FF+A">
+  </div>
+  <div id="toggle-wrap">
+    <span id="toggle-label">Diurno</span>
+    <button id="toggle" aria-label="Modo oscuro">
+      <div id="toggle-knob">
+        <svg id="sun-icon" width="9" height="9" viewBox="0 0 9 9"><circle cx="4.5" cy="4.5" r="2" fill="#5570A0"/><path d="M4.5.3V1.8M4.5 7.2V8.7M.3 4.5H1.8M7.2 4.5H8.7M1.4 1.4l1.1 1.1M6.5 6.5l1.1 1.1M1.4 7.6l1.1-1.1M6.5 2.5l1.1-1.1" stroke="#5570A0" stroke-width=".85" stroke-linecap="round"/></svg>
+        <svg id="moon-icon" width="9" height="9" viewBox="0 0 9 9" style="display:none"><path d="M7.5 5A3 3 0 014.5 2a2.7 2.7 0 100 5.4A3 3 0 017.5 5z" fill="#0A1E3D"/></svg>
+      </div>
+    </button>
+  </div>
+</header>
+
+<div id="layout">
+
+  <!-- ── SIDEBAR ─────────────────────────────────── -->
+  <nav id="sidebar">
+    <div id="sidebar-header">
+      <div id="sidebar-title">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style="vertical-align:middle;margin-right:5px">
+          <rect x=".7" y=".7" width="8.6" height="8.6" rx="1.5" stroke="currentColor" stroke-width="1.2" fill="none"/>
+          <path d="M2.5 3.5h5M2.5 5h3.5M2.5 6.5h4" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+        </svg>
+        Índice de Votaciones
+      </div>
+
+      <!-- Search type tabs -->
+      <div id="search-tabs">
+        <button class="stab active" id="stab-titulo" onclick="setSearchTab('titulo')">Por título</button>
+        <button class="stab" id="stab-fecha" onclick="setSearchTab('fecha')">Por fecha</button>
+        <button class="stab" id="stab-n" onclick="setSearchTab('n')">Por N°</button>
+      </div>
+
+      <!-- Title search -->
+      <div id="panel-titulo">
+        <div id="search-wrap">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><circle cx="5" cy="5" r="4" stroke="#888" stroke-width="1.3" fill="none"/><path d="M8.2 8.2l2.4 2.4" stroke="#888" stroke-width="1.3" stroke-linecap="round"/></svg>
+          <input id="search-inp" class="f-input" placeholder="Buscar en el título…" autocomplete="off" oninput="renderList()">
+        </div>
+      </div>
+
+      <!-- Date search -->
+      <div id="panel-fecha" style="display:none">
+        <div id="date-row">
+          <div style="flex:1">
+            <label for="d-desde">Desde</label>
+            <input type="date" id="d-desde" class="d-input" onchange="renderList()">
+          </div>
+          <div style="flex:1">
+            <label for="d-hasta">Hasta</label>
+            <input type="date" id="d-hasta" class="d-input" onchange="renderList()">
+          </div>
+        </div>
+      </div>
+
+      <!-- N° search -->
+      <div id="panel-n" style="display:none">
+        <div id="search-wrap-n">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><circle cx="5" cy="5" r="4" stroke="#888" stroke-width="1.3" fill="none"/><path d="M8.2 8.2l2.4 2.4" stroke="#888" stroke-width="1.3" stroke-linecap="round"/></svg>
+          <input id="search-n" class="f-input" style="width:100%;padding-left:26px" placeholder="N° de acta…" type="number" min="1" oninput="renderList()">
+        </div>
+      </div>
+
+      <!-- Result filter -->
+      <div id="res-row">
+        <button class="rbtn act-all" id="rbtn-all" onclick="setResFilter('')">Todos</button>
+        <button class="rbtn" id="rbtn-aff" onclick="setResFilter('AFIRMATIVO')">✓ Afirm.</button>
+        <button class="rbtn" id="rbtn-neg" onclick="setResFilter('NEGATIVO')">✗ Neg.</button>
+      </div>
+      <span id="list-count"></span>
+    </div>
+
+    <div id="acta-list"></div>
+  </nav>
+
+  <!-- ── MAIN ───────────────────────────────────────── -->
+  <div id="main">
+
+    <!-- ACTA CARD -->
+    <div class="card">
+      <div id="acta-wrap">
+        <div style="min-width:0;flex:1">
+          <div id="acta-label">Acta N° — · — · —</div>
+          <div id="acta-titulo">Seleccioná una votación del índice</div>
+          <div id="acta-meta"></div>
+          <div id="acta-links" style="display:none;margin-top:7px;gap:7px;flex-wrap:wrap">
+            <a id="link-votacion" href="#" target="_blank" rel="noopener" class="acta-link">
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5h7M5.5 2l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Ver votación
+            </a>
+          </div>
+        </div>
+        <div id="resultado-badge" style="border-color:#71717a;color:#71717a;background:transparent">—</div>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div id="stats">
+      <div class="stat" id="st-aff" data-v="AFIRMATIVO" style="border-top:3px solid #16a34a">
+        <div class="stat-num" style="color:#16a34a" id="cnt-aff">—</div>
+        <div class="stat-lbl">Afirmativos</div>
+        <div class="stat-sel" id="sel-aff" style="color:#16a34a"></div>
+      </div>
+      <div class="stat" id="st-neg" data-v="NEGATIVO" style="border-top:3px solid #dc2626">
+        <div class="stat-num" style="color:#dc2626" id="cnt-neg">—</div>
+        <div class="stat-lbl">Negativos</div>
+        <div class="stat-sel" id="sel-neg" style="color:#dc2626"></div>
+      </div>
+      <div class="stat" id="st-abs" data-v="ABSTENCION" style="border-top:3px solid #2563eb">
+        <div class="stat-num" style="color:#2563eb" id="cnt-abs">—</div>
+        <div class="stat-lbl">Abstenciones</div>
+        <div class="stat-sel" id="sel-abs" style="color:#2563eb"></div>
+      </div>
+      <div class="stat" id="st-aus" data-v="AUSENTE" style="border-top:3px solid #71717a">
+        <div class="stat-num" style="color:#71717a" id="cnt-aus">—</div>
+        <div class="stat-lbl">Ausentes</div>
+        <div class="stat-sel" id="sel-aus" style="color:#71717a"></div>
+      </div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="card" style="padding:9px 11px;margin-bottom:0">
+      <div id="filters">
+        <div id="name-wrap">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="5" cy="5" r="4" stroke="#888" stroke-width="1.3" fill="none"/><path d="M8.2 8.2l2.4 2.4" stroke="#888" stroke-width="1.3" stroke-linecap="round"/></svg>
+          <input id="inp-name" class="f-input" placeholder="Buscar diputado/a…" autocomplete="off"/>
+          <div id="ac-list"></div>
+        </div>
+        <select id="inp-bloque" class="f-select"><option value="">Todos los bloques</option></select>
+        <select id="inp-distrito" class="f-select"><option value="">Todos los distritos</option></select>
+        <div id="voto-btns">
+          <button class="vbtn" data-v="">Todos</button>
+          <button class="vbtn" data-v="AFIRMATIVO" style="color:#16a34a">Afirm.</button>
+          <button class="vbtn" data-v="NEGATIVO"   style="color:#dc2626">Neg.</button>
+          <button class="vbtn" data-v="ABSTENCION" style="color:#2563eb">Abst.</button>
+          <button class="vbtn" data-v="AUSENTE"    style="color:#71717a">Aus.</button>
+        </div>
+        <div id="filter-actions">
+          <button id="btn-clear">
+            <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1 1l6 6M7 1L1 7" stroke="#888" stroke-width="1.4" stroke-linecap="round"/></svg>
+            Limpiar
+          </button>
+          <span id="result-count"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- HEMICICLO -->
+    <div id="hemi-wrap">
+      <div id="hemi-subtitle">Hemiciclo</div>
+  <svg id="svg-hemi" viewBox="0 162 800 243"></svg>
+      <div id="nodata-overlay">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+          <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="1.3" stroke-dasharray="4 3"/>
+          <path d="M7 34 A14 14 0 0 1 33 34" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" fill="none"/>
+          <circle cx="20" cy="15" r="5.5" stroke="currentColor" stroke-width="1.3" fill="none"/>
+        </svg>
+        <p>Los datos de voto nominal no están disponibles en el índice local para esta acta</p>
+      </div>
+      <div id="tooltip">
+        <div id="tip-name"></div>
+        <div id="tip-bloque"><span id="tip-bloque-abr"></span><span style="margin:0 4px;opacity:.5">·</span><span id="tip-bloque-full"></span></div>
+        <div id="tip-distrito">
+          <svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M4.5.5C3.1.5 2 1.7 2 3.2c0 1.8 2.5 5.3 2.5 5.3S7 5 7 3.2C7 1.7 5.9.5 4.5.5z" stroke="#888" stroke-width="1.1" fill="none"/><circle cx="4.5" cy="3.2" r=".85" fill="#888"/></svg>
+          <span id="tip-dist-txt"></span>
+        </div>
+        <div id="tip-voto"><div id="tip-dot"></div><span id="tip-voto-txt"></span></div>
+      </div>
+      <div id="legend"></div>
+    </div><!-- /hemi-wrap -->
+
+    <div id="zoom-ctrl">
+      <button id="zoom-reset" title="Restablecer zoom">
+        <svg width="13" height="13" viewBox="0 0 11 11" fill="none">
+          <path d="M5.5 1.5A4 4 0 1 0 9.5 5.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+          <path d="M9.5 2v3.5H6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <input id="zoom-range" type="range" min="1" max="4" step="0.5" value="1">
+      <span id="zoom-label">1×</span>
+    </div>
+
+    <div id="footer">
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4.5" stroke="#888" stroke-width=".9"/><path d="M5 1v4l2.2 1.6" stroke="#888" stroke-width="1.1" stroke-linecap="round"/></svg>
+      <span id="footer-info">Fuente oficial: votaciones.hcdn.gob.ar · Datos procesados localmente</span>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<!-- FICHA PANEL -->
+<div id="ficha-panel">
+  <div id="ficha-accent"></div>
+  <button id="ficha-close" onclick="hideFicha()" aria-label="Cerrar ficha">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+      <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+  </button>
+  <div id="ficha-body">
+    <div id="ficha-empty">
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+        <circle cx="18" cy="18" r="17" stroke="currentColor" stroke-width="1.4" stroke-dasharray="3 3"/>
+        <circle cx="18" cy="14" r="5" stroke="currentColor" stroke-width="1.4"/>
+        <path d="M8 30c0-5.523 4.477-10 10-10s10 4.477 10 10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+      <p>Hacé clic sobre una banca para ver la ficha del diputado</p>
+    </div>
+    <div id="ficha-data" style="display:none">
+      <div id="ficha-avatar"></div>
+      <div id="ficha-nombre"></div>
+      <div id="ficha-voto-pill"></div>
+      <div class="ficha-divider"></div>
+      <div class="ficha-field">
+        <div class="ficha-label">Bloque</div>
+        <div class="ficha-value" id="ficha-bloque-full"></div>
+        <div id="ficha-bloque-chip"></div>
+      </div>
+      <div class="ficha-field">
+        <div class="ficha-label">Distrito</div>
+        <div class="ficha-value" id="ficha-distrito"></div>
+      </div>
+      <div class="ficha-field">
+        <div class="ficha-label">Período</div>
+        <div class="ficha-value" id="ficha-periodo">—</div>
+      </div>
+      <div class="ficha-field">
+        <div class="ficha-label">Sesión</div>
+        <div class="ficha-value" id="ficha-sesion">—</div>
+      </div>
+      <div class="ficha-field">
+        <div class="ficha-label">Acta</div>
+        <div class="ficha-value" id="ficha-acta">—</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="datos.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════════════════════
+// ACTAS_INDEX fields: [id, n°, fecha_ISO, hora, titulo, resultado,
+//   periodo, tipo_periodo, sesion, tipo_sesion, reunion, presidente, miembros]
+
+// Block political order (left→right)
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SIDEBAR STATE
+// ═══════════════════════════════════════════════════════════════════════════
+let searchTab='titulo', resFilter='', activeActaId=null;
+
+function setSearchTab(tab){
+  searchTab=tab;
+  ['titulo','fecha','n'].forEach(t=>{
+    document.getElementById('panel-'+t).style.display=t===tab?'block':'none';
+    document.getElementById('stab-'+t).classList.toggle('active',t===tab);
+  });
+  renderList();
+}
+
+function setResFilter(v){
+  resFilter=v;
+  document.getElementById('rbtn-all').className='rbtn'+(v===''?' act-all':'');
+  document.getElementById('rbtn-aff').className='rbtn'+(v==='AFIRMATIVO'?' act-aff':'');
+  document.getElementById('rbtn-neg').className='rbtn'+(v==='NEGATIVO'?' act-neg':'');
+  renderList();
+}
+
+function getFiltered(){
+  let list=ACTAS_INDEX;
+  if(resFilter) list=list.filter(a=>a[5]===resFilter);
+  if(searchTab==='titulo'){
+    const q=(document.getElementById('search-inp').value||'').toLowerCase().trim();
+    if(q) list=list.filter(a=>(a[4]||'').toLowerCase().includes(q));
+  } else if(searchTab==='fecha'){
+    const desde=document.getElementById('d-desde').value;
+    const hasta=document.getElementById('d-hasta').value;
+    if(desde) list=list.filter(a=>a[2]&&a[2]>=desde);
+    if(hasta) list=list.filter(a=>a[2]&&a[2]<=hasta);
+  } else {
+    const nv=(document.getElementById('search-n').value||'').trim();
+    if(nv) list=list.filter(a=>(a[1]+'')===nv||(a[0]+'')===nv);
+  }
+  return list;
+}
+
+function renderList(){
+  const filtered=getFiltered();
+  const el=document.getElementById('acta-list');
+  el.innerHTML='';
+  document.getElementById('list-count').textContent=filtered.length+' / '+ACTAS_INDEX.length+' actas';
+  const MESES=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+  filtered.forEach(a=>{
+    const res=a[5]||'';
+    const dotColor=res==='AFIRMATIVO'?'#16a34a':res==='NEGATIVO'?'#dc2626':'#71717a';
+    const fechaFmt=a[2]?(f=>{const p=f.split('-');return p[2]+' '+MESES[+p[1]-1]+' '+p[0]})(a[2]):'—';
+    const resCls=res==='AFIRMATIVO'?'a-res-aff':res==='NEGATIVO'?'a-res-neg':'';
+    const hasData=!!VOTE_DB[a[0]];
+    const tit=(a[4]||'Sin título').substring(0,90)+((a[4]||'').length>90?'…':'');
+    const item=document.createElement('div');
+    item.className='a-item'+(a[0]===activeActaId?' selected':'');
+    item.dataset.id=a[0];
+    item.title=a[4]||'';
+    item.innerHTML=
+      '<div class="a-dot" style="background:'+dotColor+'"></div>'+
+      '<div class="a-info">'+
+        '<div class="a-top">'+
+          '<span class="a-num">N° '+a[1]+'</span>'+
+          '<span class="a-fecha">'+fechaFmt+'</span>'+
+          (res?'<span class="a-res '+resCls+'">'+res+'</span>':'')+
+          (hasData?'<span class="a-data-badge">● nominales</span>':'')+
+        '</div>'+
+        '<div class="a-tit">'+tit+'</div>'+
+      '</div>';
+    item.addEventListener('click',()=>loadActa(a[0]));
+    // Mobile: primer tap expande título; doble tap (≤350ms) carga el acta
+    let lastTap=0;
+    item.addEventListener('touchend',e=>{
+      const now=Date.now();
+      if(now-lastTap<350){
+        // Doble tap → cargar acta
+        e.preventDefault();
+        lastTap=0;
+        loadActa(a[0]);
+      } else {
+        // Primer tap → solo expandir título truncado (sin preventDefault → scroll libre)
+        lastTap=now;
+        const titEl=item.querySelector('.a-tit');
+        if(titEl) titEl.classList.add('expanded');
+      }
+    },{passive:false});
+    el.appendChild(item);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// HEMICICLO GEOMETRY
+// ═══════════════════════════════════════════════════════════════════════════
+const CX=400,CY=395,INNER_R=70,OUTER_R=225,NUM_ROWS=8,DR=5.2;
+
+function mkSeats(total){
+  const radii=[]; for(let i=0;i<NUM_ROWS;i++) radii.push(INNER_R+(OUTER_R-INNER_R)*i/(NUM_ROWS-1));
+  const circs=radii.map(r=>Math.PI*r), tc=circs.reduce((a,b)=>a+b,0);
+  const spr=radii.map(r=>Math.round(Math.PI*r/tc*total));
+  let sum=spr.reduce((a,b)=>a+b,0), diff=total-sum, idx=NUM_ROWS-1;
+  while(diff!==0){spr[idx]+=diff>0?1:-1;diff+=diff>0?-1:1;idx=(idx-1+NUM_ROWS)%NUM_ROWS;}
+  const p=[];
+  for(let ri=0;ri<NUM_ROWS;ri++){
+    const r=radii[ri],n=spr[ri];
+    for(let i=0;i<n;i++){const a=Math.PI*(1-i/(n-1));p.push({x:CX+r*Math.cos(a),y:CY-r*Math.sin(a)});}
+  }
+  return p;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SVG / DATA
+// ═══════════════════════════════════════════════════════════════════════════
+const NS="http://www.w3.org/2000/svg";
+function svgEl(tag,attrs){const e=document.createElementNS(NS,tag);for(const[k,v] of Object.entries(attrs||{}))e.setAttribute(k,v);return e;}
+
+const svg=document.getElementById('svg-hemi');
+const circles=[];
+
+function isDark(){return document.body.classList.contains('dark')}
+function ringColor(){return isDark()?'rgba(100,150,220,.07)':'rgba(0,20,100,.055)'}
+function axisColor(){return isDark()?'rgba(100,150,220,.18)':'rgba(0,20,100,.13)'}
+
+// Build static SVG rings + axis once
+const RADII=(()=>{const a=[];for(let i=0;i<NUM_ROWS;i++)a.push(INNER_R+(OUTER_R-INNER_R)*i/(NUM_ROWS-1));return a;})();
+const ringEls=RADII.map(r=>{
+  const p=svgEl('path',{d:`M ${CX-r},${CY} A ${r},${r} 0 0,1 ${CX+r},${CY}`,fill:'none','stroke-width':'0.7'});
+  svg.appendChild(p);return p;
+});
+const axisLine=svgEl('line',{x1:CX-(OUTER_R+12),y1:CY,x2:CX+(OUTER_R+12),y2:CY,'stroke-width':'1.1'});
+svg.appendChild(axisLine);
+
+function updateSvgColors(){
+  const rc=ringColor(),ac=axisColor();
+  ringEls.forEach(p=>p.setAttribute('stroke',rc));
+  axisLine.setAttribute('stroke',ac);
+}
+updateSvgColors();
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SVG ZOOM ENGINE (mobile) — zoom vía slider + pan con un dedo
+// Solo activo en dispositivos táctiles. Desktop sin cambios.
+// Pan: desplazar con un dedo cuando hay zoom activo.
+// Tap simple: seleccionar banca y ver ficha.
+// Reset automático al cerrar ficha o volver a escala 1×.
+// ═══════════════════════════════════════════════════════════════════════════
+(function(){
+  // Solo aplica en mobile táctil
+  const isTouchDev=()=>('ontouchstart' in window)||navigator.maxTouchPoints>0;
+
+  const VB0={x:0,y:162,w:800,h:243};
+  const MIN_SCALE=1, MAX_SCALE=4;
+  let vb={...VB0};
+
+  function applyVB(){
+    svg.setAttribute('viewBox',`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
+  }
+
+  function clampVB(){
+    const sc=VB0.w/vb.w;
+    if(sc<=1.01){vb.x=VB0.x;vb.y=VB0.y;return;}
+    const MX=20,MY=10;
+    const minX=VB0.x-MX, maxX=VB0.x+VB0.w+MX-vb.w;
+    const minY=VB0.y-MY, maxY=VB0.y+VB0.h+MY-vb.h;
+    vb.x=Math.max(minX,Math.min(maxX,vb.x));
+    vb.y=Math.max(minY,Math.min(maxY,vb.y));
+  }
+
+  function currentScale(){ return VB0.w/vb.w; }
+
+  function syncSlider(){
+    if(window._syncZoomSlider) window._syncZoomSlider(currentScale());
+  }
+
+  // Zoom centrado en el centro del hemiciclo (usado por el slider)
+  function zoomToCenter(newScale){
+    newScale=Math.max(MIN_SCALE,Math.min(MAX_SCALE,newScale));
+    const newW=VB0.w/newScale;
+    const newH=VB0.h/newScale;
+    vb.w=newW; vb.h=newH;
+    vb.x=VB0.x+(VB0.w-newW)/2;
+    vb.y=VB0.y+(VB0.h-newH)/2;
+    applyVB();
+    syncSlider();
+    updateSubtitle();
+  }
+
+  function resetZoom(){
+    vb={...VB0};
+    applyVB();
+    syncSlider();
+    updateSubtitle();
+  }
+
+  function updateSubtitle(){
+    if(!isTouchDev()) return;
+    const sc=currentScale();
+    document.getElementById('hemi-subtitle').textContent=
+      sc>1.1?'Hemiciclo · Arrastrá para explorar · Tocá una banca':'Hemiciclo · Usá el slider para acercar';
+  }
+
+  // ── Estado táctil ──────────────────────────────────────
+  let panStartClient={x:0,y:0};
+  let panVB={x:0,y:0};
+  let tapMoved=false;
+  const TAP_SLOP=8;
+
+  svg.addEventListener('touchstart',e=>{
+    if(!isTouchDev()) return;
+    // Solo un dedo → pan o tap
+    if(e.touches.length===1){
+      e.preventDefault();
+      panStartClient={x:e.touches[0].clientX,y:e.touches[0].clientY};
+      panVB={x:vb.x,y:vb.y};
+      tapMoved=false;
+    }
+    // Dos dedos → ignorar (no pinch)
+  },{passive:false});
+
+  svg.addEventListener('touchmove',e=>{
+    if(!isTouchDev()) return;
+    if(e.touches.length===1){
+      e.preventDefault();
+      const dx=e.touches[0].clientX-panStartClient.x;
+      const dy=e.touches[0].clientY-panStartClient.y;
+      if(Math.hypot(dx,dy)>TAP_SLOP) tapMoved=true;
+
+      if(currentScale()>1.01){
+        // Pan: desplazar el viewBox
+        const r=svg.getBoundingClientRect();
+        const dxSVG=dx/r.width*vb.w;
+        const dySVG=dy/r.height*vb.h;
+        vb.x=panVB.x-dxSVG;
+        vb.y=panVB.y-dySVG;
+        clampVB();
+        applyVB();
+      }
+    }
+  },{passive:false});
+
+  svg.addEventListener('touchend',e=>{
+    if(!isTouchDev()) return;
+    e.preventDefault();
+    if(e.touches.length===0 && !tapMoved){
+      // Tap simple → propagar click al elemento bajo el dedo
+      const t=e.changedTouches[0];
+      const el=document.elementFromPoint(t.clientX,t.clientY);
+      if(el&&el!==svg) el.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,clientX:t.clientX,clientY:t.clientY}));
+    }
+  },{passive:false});
+
+  // Exponer API global
+  window._svgZoom={zoomToCenter,resetZoom,currentScale,syncSlider,updateSubtitle};
+
+  // Mostrar slider si es dispositivo táctil (más fiable que media query)
+  if(isTouchDev()){
+    document.getElementById('zoom-ctrl').style.display='flex';
+    document.getElementById('acta-links').style.setProperty('display','none','important');
+  }
+
+})();
+
+// ── Slider de zoom (input range nativo) ───────────────────
+(function(){
+  const rangeEl  = document.getElementById('zoom-range');
+  const label    = document.getElementById('zoom-label');
+  const resetBtn = document.getElementById('zoom-reset');
+
+  function setLabel(sc){
+    label.textContent=(sc===1?'1':parseFloat(sc).toFixed(sc<2?1:0))+'×';
+  }
+
+  function applyScale(sc){
+    setLabel(sc);
+    if(window._svgZoom) window._svgZoom.zoomToCenter(parseFloat(sc));
+  }
+
+  rangeEl.addEventListener('input', e=>applyScale(e.target.value));
+
+  resetBtn.addEventListener('click',()=>{
+    rangeEl.value=1;
+    if(window._svgZoom) window._svgZoom.resetZoom();
+    setLabel(1);
+  });
+  resetBtn.addEventListener('touchend',e=>{
+    e.preventDefault();e.stopPropagation();
+    rangeEl.value=1;
+    if(window._svgZoom) window._svgZoom.resetZoom();
+    setLabel(1);
+  },{passive:false});
+
+  // Evitar que el control propague touches al SVG
+  const ctrl=document.getElementById('zoom-ctrl');
+  ctrl.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});
+  ctrl.addEventListener('touchend',  e=>e.stopPropagation(),{passive:true});
+
+  // Sincronizar el range cuando el motor resete el zoom externamente
+  window._syncZoomSlider=function(sc){
+    rangeEl.value=sc;
+    setLabel(sc);
+  };
+})();
+
+function rebuildSeats(votes){
+  // Remove old circles
+  circles.splice(0).forEach(c=>{try{svg.removeChild(c)}catch(e){}});
+  DATA.length=0;
+  if(!votes||!votes.length) return;
+  const total=votes.length;
+  const SEATS=mkSeats(total);
+  const sorted=votes.map((v,i)=>({id:i,name:v[0],bloque:v[1],distrito:v[2],voto:v[3]}))
+    .sort((a,b)=>{
+      const d=PO.indexOf(a.bloque)-PO.indexOf(b.bloque);
+      if(d) return d;
+      return a.distrito<b.distrito?-1:a.distrito>b.distrito?1:a.name.localeCompare(b.name);
+    })
+    .map((v,i)=>({...v,...(SEATS[i]||{x:-999,y:-999})}));
+  sorted.forEach(s=>{
+    DATA.push(s);
+    const isTouchDev=('ontouchstart' in window)||navigator.maxTouchPoints>0;
+    const circleR=isTouchDev?Math.max(DR,8):DR;
+    const c=svgEl('circle',{cx:s.x,cy:s.y,r:circleR,fill:VC[s.voto],opacity:'1','data-id':s.id});
+    c.style.cursor='pointer';
+    c.style.transition='r .14s ease,opacity .17s ease';
+    svg.appendChild(c);
+    circles.push(c);
+    c.addEventListener('mouseenter',e=>showTip(s,e));
+    c.addEventListener('mouseleave',hideTip);
+    c.addEventListener('mousemove',moveTip);
+    c.addEventListener('click',()=>{hideTip();showFicha(s);});
+  });
+  updateSvgColors();
+  const isTD=('ontouchstart' in window)||navigator.maxTouchPoints>0;
+  document.getElementById('hemi-subtitle').textContent=
+    (isTD?'Hemiciclo · Usá el slider para acercar':'Hemiciclo · Clic para ver ficha');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// LEGEND (static init, counts updated per acta)
+// ═══════════════════════════════════════════════════════════════════════════
+const legDiv=document.getElementById('legend');
+Object.entries(VC).forEach(([k,color])=>{
+  const item=document.createElement('div');
+  item.className='leg-item';
+  item.innerHTML=`<div class="leg-dot" id="ld-${k}" style="background:${color}"></div><span class="leg-txt">${VL[k]} <span class="leg-cnt" id="lc-${k}" style="color:${color}">—</span></span>`;
+  item.addEventListener('click',()=>toggleVotoFilter(k));
+  legDiv.appendChild(item);
+});
+
+function updateLegendCounts(counts){
+  Object.keys(VC).forEach(k=>{
+    const el=document.getElementById('lc-'+k);
+    if(el) el.textContent=counts&&counts[k]!==undefined?counts[k]:'—';
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// LOAD ACTA
+// ═══════════════════════════════════════════════════════════════════════════
+function fmtFecha(iso){
+  if(!iso) return '—';
+  const p=iso.split('-');
+  return p[2]+' '+MESES_LONG[+p[1]-1]+' '+p[0];
+}
+
+function loadActa(id){
+  hideFicha();
+  fName='';fBloque='';fDistrito='';fVoto='';
+  document.getElementById('inp-name').value='';
+  document.getElementById('inp-bloque').value='';
+  document.getElementById('inp-distrito').value='';
+  syncVotoBtns();
+
+  activeActaId=id;
+  // Highlight in list
+  document.querySelectorAll('.a-item').forEach(el=>
+    el.classList.toggle('selected',+el.dataset.id===id));
+
+  const a=ACTAS_INDEX.find(x=>x[0]===id);
+  if(!a) return;
+
+  // Header
+  const sesSuffix=a[9]?'ª '+a[9]:'ª Sesión';
+  document.getElementById('acta-label').textContent=
+    'Acta N° '+(a[1]||'?')+
+    (a[2]?' · '+fmtFecha(a[2]):'')+
+    (a[3]?' · '+a[3]:'')+
+    (a[8]?' · '+a[8]+sesSuffix:'')+
+    (a[10]?' · '+a[10]+'ª Reunión':'');
+  document.getElementById('acta-titulo').textContent=a[4]||'Sin título registrado';
+  document.getElementById('acta-meta').textContent=
+    (a[6]?a[6]+'° Período '+(a[7]||''):'')+(a[11]?' · Presidente: '+a[11]:'')+(a[12]?' · Cuerpo: '+a[12]:'');
+
+  // Links a HCDN
+  const linksDiv=document.getElementById('acta-links');
+  const linkVotacion=document.getElementById('link-votacion');
+  linkVotacion.href='https://votaciones.hcdn.gob.ar/votacion/'+id;
+  linksDiv.style.display='flex';
+
+  const res=a[5]||'';
+  const badge=document.getElementById('resultado-badge');
+  const rColor=res==='AFIRMATIVO'?'#16a34a':res==='NEGATIVO'?'#dc2626':'#71717a';
+  badge.style.borderColor=rColor;badge.style.color=rColor;
+  if(isDark()) badge.style.background=res==='AFIRMATIVO'?'#0A1E0E':res==='NEGATIVO'?'#1C0A0A':'transparent';
+  else badge.style.background=res==='AFIRMATIVO'?'#F0FDF4':res==='NEGATIVO'?'#FEF2F2':'transparent';
+  badge.innerHTML=(res==='AFIRMATIVO'
+    ?'<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5.7" stroke="'+rColor+'" stroke-width="1.4"/><path d="M3 6.5l2.5 2.5 4.5-4.5" stroke="'+rColor+'" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    :res==='NEGATIVO'
+    ?'<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5.7" stroke="'+rColor+'" stroke-width="1.4"/><path d="M4 4l5 5M9 4l-5 5" stroke="'+rColor+'" stroke-width="1.6" stroke-linecap="round"/></svg>'
+    :''
+  )+' '+(res||'—');
+
+  // Votes
+  const votes=VOTE_DB[id];
+  const overlay=document.getElementById('nodata-overlay');
+  overlay.style.display=votes?'none':'flex';
+
+  if(votes){
+    rebuildSeats(votes);
+    rebuildSelects();
+    applyFilter();
+    const cnt={AFIRMATIVO:0,NEGATIVO:0,ABSTENCION:0,AUSENTE:0};
+    votes.forEach(v=>{if(cnt[v[3]]!==undefined)cnt[v[3]]++;});
+    setStatCounts(cnt);
+    updateLegendCounts(cnt);
+  } else {
+    rebuildSeats([]);
+    rebuildSelects();
+    setStatCounts(null);
+    updateLegendCounts(null);
+  }
+
+  // Presidente — círculo dentro del SVG en el centro del eje (CX=400, CY=395)
+  const presName=a[11]||'';
+  presData=null; // reset
+  // Limpiar presidencia anterior
+  const oldPG=document.getElementById('pres-svg-g');
+  if(oldPG) oldPG.parentNode.removeChild(oldPG);
+
+  if(presName && votes){
+    const presVote=votes.find(v=>v[0]&&v[0].toUpperCase()===presName.toUpperCase());
+    const votoColor=presVote?VC[presVote[3]]||'#71717a':'#8896A8';
+    presData=presVote
+      ?{name:presVote[0],bloque:presVote[1],distrito:presVote[2],voto:presVote[3]}
+      :{name:presName,bloque:'PRESIDENCIA',distrito:'—',voto:'PRESIDENCIA'};
+
+    // Grupo SVG centrado en CX=400, CY=395 (eje del hemiciclo)
+    const g=svgEl('g',{id:'pres-svg-g',style:'cursor:pointer',transform:'translate(400,395)'});
+    const pc=svgEl('circle',{cx:'0',cy:'0',r:'7',fill:votoColor});
+    g.appendChild(pc);
+    svg.appendChild(g);
+
+    g.addEventListener('click',()=>showFicha(presData));
+    g.addEventListener('mouseenter',e=>showTip(presData,e));
+    g.addEventListener('mouseleave',hideTip);
+    g.addEventListener('mousemove',moveTip);
+    g.addEventListener('touchend',e=>{e.preventDefault();hideTip();showFicha(presData);},{passive:false});
+  }
+
+  // Footer
+  document.getElementById('footer-info').textContent=
+    'Fuente oficial: votaciones.hcdn.gob.ar · Acta ID '+id+' · Datos procesados localmente';
+}
+
+function setStatCounts(cnt){
+  ['aff','neg','abs','aus'].forEach((f,i)=>{
+    const k=['AFIRMATIVO','NEGATIVO','ABSTENCION','AUSENTE'][i];
+    document.getElementById('cnt-'+f).textContent=cnt?cnt[k]:'—';
+  });
+}
+
+function rebuildSelects(){
+  const bSel=document.getElementById('inp-bloque');
+  const dSel=document.getElementById('inp-distrito');
+  while(bSel.options.length>1)bSel.remove(1);
+  while(dSel.options.length>1)dSel.remove(1);
+  [...new Set(DATA.map(s=>s.bloque))].sort((a,b)=>PO.indexOf(a)-PO.indexOf(b)).forEach(b=>{
+    const o=document.createElement('option');o.value=b;o.textContent=(BS[b]||b)+' — '+b;bSel.appendChild(o);
+  });
+  [...new Set(DATA.map(s=>s.distrito))].sort().forEach(d=>{
+    const o=document.createElement('option');o.value=d;o.textContent=d;dSel.appendChild(o);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FILTER LOGIC
+// ═══════════════════════════════════════════════════════════════════════════
+let fName='',fBloque='',fDistrito='',fVoto='';
+let presData=null; // datos del presidente de la cámara del acta activa
+function hasFilter(){return!!(fName||fBloque||fDistrito||fVoto)}
+
+function normalize(s){return(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
+
+function applyFilter(){
+  const nm=normalize(fName).trim();
+  const matched=new Set(DATA.filter(s=>{
+    let apellido=normalize(s.name);
+    const ci=apellido.indexOf(',');
+    if(ci>-1) apellido=apellido.substring(0,ci);
+    return (!nm||apellido.startsWith(nm))&&
+      (!fBloque||s.bloque===fBloque)&&
+      (!fDistrito||s.distrito===fDistrito)&&
+      (!fVoto||s.voto===fVoto);
+  }).map(s=>s.id));
+  const has=hasFilter();
+  const dark=isDark();
+  circles.forEach((c,i)=>{
+    const s=DATA[i];
+    const isM=!has||matched.has(s.id);
+    const dim=has&&!isM;
+    c.setAttribute('r',isM&&has?DR*1.22:DR);
+    c.setAttribute('fill',dim?(dark?'#182A3C':'#A0B2C8'):VC[s.voto]);
+    c.setAttribute('opacity',dim?'0.1':'1');
+  });
+  // Presidencia: highlight/dim según filtros
+  const pg=document.getElementById('pres-svg-g');
+  if(pg&&presData){
+    const pc=pg.querySelector('circle');
+    const baseColor=presData.voto==='PRESIDENCIA'?'#8896A8':(VC[presData.voto]||'#8896A8');
+    if(!has){
+      // sin filtro: color normal, tamaño normal
+      pc.setAttribute('r','7');
+      pc.setAttribute('fill',baseColor);
+      pc.setAttribute('opacity','1');
+    } else {
+      // ¿coincide el presidente con los filtros activos?
+      const nm=normalize(fName).trim();
+      const presApellido=normalize((presData.name||'').split(',')[0]);
+      const nameMatch=!nm||presApellido.startsWith(nm);
+      const bloqueMatch=!fBloque||(presData.bloque===fBloque);
+      const distritoMatch=!fDistrito||(presData.distrito===fDistrito);
+      const votoMatch=!fVoto||(presData.voto===fVoto);
+      const presMatched=nameMatch&&bloqueMatch&&distritoMatch&&votoMatch;
+      if(presMatched){
+        // resaltado igual que las bancas matched
+        pc.setAttribute('r','8.5');
+        pc.setAttribute('fill',baseColor);
+        pc.setAttribute('opacity','1');
+      } else {
+        // apagado igual que las bancas no matched
+        pc.setAttribute('r','7');
+        pc.setAttribute('fill',dark?'#182A3C':'#A0B2C8');
+        pc.setAttribute('opacity','0.1');
+      }
+    }
+  }
+  const counts={AFIRMATIVO:0,NEGATIVO:0,ABSTENCION:0,AUSENTE:0};
+  // FIX: DATA esta ordenado por bloque/distrito tras el sort, por lo que
+  // DATA[id] no corresponde al elemento con s.id===id (id es el indice
+  // pre-sort). Usar un Map id->voto para el lookup correcto.
+  if(has){const vm=new Map(DATA.map(s=>[s.id,s.voto]));matched.forEach(id=>{const v=vm.get(id);if(v)counts[v]++;});}
+  ['aff','neg','abs','aus'].forEach((k,i)=>{
+    const vk=['AFIRMATIVO','NEGATIVO','ABSTENCION','AUSENTE'][i];
+    const el=document.getElementById('sel-'+k);
+    if(has){el.textContent=counts[vk]+' sel.';el.style.display='block';}
+    else{el.style.display='none';}
+  });
+  const fa=document.getElementById('filter-actions');
+  const rc=document.getElementById('result-count');
+  if(has){fa.style.display='flex';rc.style.display='inline';rc.textContent=matched.size+' diputado'+(matched.size!==1?'s':'');}
+  else{fa.style.display='none';rc.style.display='none';}
+  document.querySelectorAll('.leg-item').forEach(li=>{
+    const k=li.querySelector('.leg-dot').id.replace('ld-','');
+    li.style.opacity=(fVoto&&fVoto!==k)?'0.38':'1';
+  });
+  ['AFIRMATIVO','NEGATIVO','ABSTENCION','AUSENTE'].forEach(k=>{
+    const idm={AFIRMATIVO:'st-aff',NEGATIVO:'st-neg',ABSTENCION:'st-abs',AUSENTE:'st-aus'}[k];
+    document.getElementById(idm).style.boxShadow=fVoto===k?`0 0 0 2px ${VC[k]}55`:'none';
+  });
+}
+
+function toggleVotoFilter(k){fVoto=fVoto===k?'':k;syncVotoBtns();applyFilter();}
+function syncVotoBtns(){
+  document.querySelectorAll('.vbtn').forEach(b=>{
+    const v=b.dataset.v,active=fVoto===v;
+    if(active){b.style.background=v?VC[v]:'#002A80';b.style.color='#fff';b.style.borderColor=v?VC[v]:'#002A80';}
+    else{b.style.background='';b.style.color=v?VC[v]:'';b.style.borderColor='';}
+  });
+}
+
+// Events
+// AUTOCOMPLETE
+const acList=document.getElementById('ac-list');
+let acIdx=-1;
+function showAC(q){
+  acList.innerHTML='';acIdx=-1;
+  if(!q||!DATA.length){acList.style.display='none';return;}
+  const nq=normalize(q).trim();
+  const matches=[...new Map(DATA.filter(s=>{
+    const ap=normalize(s.name.split(',')[0]);
+    return ap.startsWith(nq);
+  }).map(s=>[s.name,s])).values()];
+  // Incluir presidente si coincide con la búsqueda
+  if(presData){
+    const presApellido=normalize((presData.name||'').split(',')[0]);
+    if(presApellido.startsWith(nq)){
+      // Insertar al frente si no está ya en DATA (voto='PRESIDENCIA' significa que no votó)
+      if(presData.voto==='PRESIDENCIA'){
+        matches.unshift(presData);
+      }
+      // Si votó ya aparece en DATA/matches normalmente
+    }
+  }
+  if(!matches.length){acList.style.display='none';return;}
+  matches.forEach((s,i)=>{
+    const d=document.createElement('div');
+    d.className='ac-item';
+    const isPres=s.voto==='PRESIDENCIA';
+    const vc2=isPres?'#8896A8':(VC[s.voto]||'#999');
+    const badge=isPres?'PRES':(s.voto||'').substring(0,3);
+    d.innerHTML='<span class="ac-item-name">'+s.name+'</span>'+
+      '<span class="ac-item-voto" style="background:'+vc2+'22;color:'+vc2+'">'+badge+'</span>';
+    d.addEventListener('mousedown',e=>{e.preventDefault();selectAC(s.name);});
+    d.addEventListener('touchend',e=>{e.preventDefault();selectAC(s.name);});
+    acList.appendChild(d);
+  });
+  acList.style.display='block';
+}
+function selectAC(name){
+  const apellido=name.split(',')[0].trim();
+  document.getElementById('inp-name').value=apellido;
+  fName=apellido;
+  acList.style.display='none';
+  applyFilter();
+}
+function hideAC(){setTimeout(()=>{acList.style.display='none';},150);}
+document.getElementById('inp-name').addEventListener('input',e=>{
+  fName=e.target.value;
+  showAC(e.target.value);
+  applyFilter();
+});
+document.getElementById('inp-name').addEventListener('blur',hideAC);
+document.getElementById('inp-name').addEventListener('keydown',e=>{
+  const items=acList.querySelectorAll('.ac-item');
+  if(e.key==='ArrowDown'){acIdx=Math.min(acIdx+1,items.length-1);items.forEach((it,i)=>it.classList.toggle('ac-sel',i===acIdx));e.preventDefault();}
+  else if(e.key==='ArrowUp'){acIdx=Math.max(acIdx-1,0);items.forEach((it,i)=>it.classList.toggle('ac-sel',i===acIdx));e.preventDefault();}
+  else if(e.key==='Enter'&&acIdx>=0){items[acIdx].dispatchEvent(new MouseEvent('mousedown'));}
+  else if(e.key==='Escape'){acList.style.display='none';}
+});
+document.getElementById('inp-bloque').addEventListener('change',e=>{fBloque=e.target.value;applyFilter();});
+document.getElementById('inp-distrito').addEventListener('change',e=>{fDistrito=e.target.value;applyFilter();});
+document.querySelectorAll('.vbtn').forEach(b=>b.addEventListener('click',()=>toggleVotoFilter(b.dataset.v)));
+document.querySelectorAll('.stat').forEach(s=>s.addEventListener('click',()=>toggleVotoFilter(s.dataset.v)));
+document.getElementById('btn-clear').addEventListener('click',()=>{
+  fName='';fBloque='';fDistrito='';fVoto='';
+  document.getElementById('inp-name').value='';
+  document.getElementById('inp-bloque').value='';
+  document.getElementById('inp-distrito').value='';
+  syncVotoBtns();applyFilter();
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// TOOLTIP
+// ═══════════════════════════════════════════════════════════════════════════
+const tip=document.getElementById('tooltip');
+let tipVisible=false;
+function showTip(s,e){
+  const isPres=s.voto==='PRESIDENCIA';
+  document.getElementById('tip-name').textContent=s.name;
+  document.getElementById('tip-bloque-abr').textContent=BS[s.bloque]||s.bloque;
+  document.getElementById('tip-bloque-full').textContent=s.bloque;
+  document.getElementById('tip-distrito').style.display=isPres?'none':'flex';
+  document.getElementById('tip-dist-txt').textContent=s.distrito;
+  document.getElementById('tip-voto').style.display=isPres?'none':'flex';
+  document.getElementById('tip-dot').style.background=VC[s.voto];
+  document.getElementById('tip-voto-txt').textContent=VL[s.voto];
+  document.getElementById('tip-voto').style.color=VC[s.voto];
+  tip.style.borderColor=isPres?'#8896A8':(VC[s.voto]||'#8896A8');
+  tip.style.display='block';tipVisible=true;positionTip(e);
+}
+function hideTip(){tip.style.display='none';tipVisible=false;}
+function moveTip(e){if(tipVisible)positionTip(e);}
+function positionTip(e){
+  const wr=document.getElementById('hemi-wrap').getBoundingClientRect();
+  const TW=210,TH=95,px=e.clientX-wr.left,py=e.clientY-wr.top;
+  const tx=px+14+TW>wr.width?px-TW-6:px+14;
+  tip.style.left=tx+'px';tip.style.top=Math.max(4,py-TH-4)+'px';
+}
+svg.addEventListener('mousemove',moveTip);
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DARK MODE
+// ═══════════════════════════════════════════════════════════════════════════
+document.getElementById('toggle').addEventListener('click',()=>{
+  const dark=document.body.classList.toggle('dark');
+  document.body.classList.toggle('light',!dark);
+  document.getElementById('toggle-label').textContent=dark?'Nocturno':'Diurno';
+  document.getElementById('sun-icon').style.display=dark?'none':'block';
+  document.getElementById('moon-icon').style.display=dark?'block':'none';
+  updateSvgColors();applyFilter();
+  // Re-apply badge bg on theme change
+  if(activeActaId) loadActa(activeActaId);
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FICHA PANEL
+// ═══════════════════════════════════════════════════════════════════════════
+const fichaPanel=document.getElementById('ficha-panel');
+
+function strToHue(s){let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))&0xFFFFFF;return h%360;}
+function showFicha(s){
+  const isPres=s.voto==='PRESIDENCIA';
+  const color=isPres?'#8896A8':(VC[s.voto]||'#71717a');
+  document.getElementById('ficha-accent').style.background=color;
+  const parts=s.name.split(',');
+  const apellido=parts[0].trim(),nombre=(parts[1]||'').trim();
+  const initials=isPres?'P':((apellido[0]||'')+(nombre[0]||''));
+  const hue=isPres?220:strToHue(s.bloque);
+  const avatar=document.getElementById('ficha-avatar');
+  avatar.textContent=initials.toUpperCase();
+  const dk=isDark();
+  avatar.style.background=dk?`hsl(${hue},40%,18%)`:`hsl(${hue},60%,92%)`;
+  avatar.style.color=dk?`hsl(${hue},60%,65%)`:`hsl(${hue},55%,35%)`;
+  avatar.style.border=`2px solid hsl(${hue},45%,${dk?'30%':'78%'})`;
+  const toTitle=w=>w?w[0].toUpperCase()+w.slice(1).toLowerCase():'';
+  const af=apellido.split(' ').map(toTitle).join(' ');
+  const nf=nombre.split(' ').filter(Boolean).map(toTitle).join(' ');
+  document.getElementById('ficha-nombre').textContent=nf?`${af}, ${nf}`:af;
+  const pill=document.getElementById('ficha-voto-pill');
+  // Si es presidencia sin voto → mostrar "Presidencia" en lugar de voto
+  const pillLabel=isPres?'Presidencia':(VL[s.voto]||s.voto);
+  pill.textContent=pillLabel.toUpperCase();
+  pill.style.background=color+'18';pill.style.color=color;pill.style.border=`1.5px solid ${color}40`;
+  document.getElementById('ficha-bloque-full').textContent=isPres?'Presidencia de la Cámara':s.bloque;
+  document.getElementById('ficha-bloque-chip').textContent=isPres?'Presidencia':(BS[s.bloque]||s.bloque);
+  document.getElementById('ficha-distrito').textContent=isPres?'—':s.distrito;
+  // Acta info from active
+  const a=ACTAS_INDEX.find(x=>x[0]===activeActaId);
+  if(a){
+    document.getElementById('ficha-periodo').textContent=(a[6]||'')+'° Período '+(a[7]||'');
+    document.getElementById('ficha-sesion').textContent=(a[8]||'')+'ª '+(a[9]||'')+' · '+(a[10]||'')+'ª Reunión';
+    document.getElementById('ficha-acta').textContent='N° '+a[1]+' · '+fmtFecha(a[2])+(a[3]?' · '+a[3]:'');
+  }
+  document.getElementById('ficha-empty').style.display='none';
+  document.getElementById('ficha-data').style.display='block';
+  fichaPanel.classList.add('open');document.body.classList.add('ficha-open');
+}
+function hideFicha(){
+  fichaPanel.classList.remove('open');
+  document.body.classList.remove('ficha-open');
+  // En mobile: resetear zoom al cerrar la ficha
+  const isTD=('ontouchstart' in window)||navigator.maxTouchPoints>0;
+  if(isTD && window._svgZoom) window._svgZoom.resetZoom();
+}
+// Swipe derecha para cerrar ficha en mobile
+(function(){
+  let tx=0;
+  fichaPanel.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;},{passive:true});
+  fichaPanel.addEventListener('touchend',e=>{
+    if(e.changedTouches[0].clientX - tx > 60) hideFicha();
+  },{passive:true});
+})();
+document.addEventListener('keydown',e=>{if(e.key==='Escape')hideFicha();});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════════════
+setResFilter('');
+renderList();
+loadActa(5881);
+// Scroll active item into view
+setTimeout(()=>{
+  const sel=document.querySelector('.a-item.selected');
+  if(sel) sel.scrollIntoView({block:'nearest',behavior:'smooth'});
+},80);
+
+// ── RESPONSIVE SIDEBAR (mobile) ─────────────────────
+function isMobile(){return window.innerWidth<=720}
+function toggleSidebar(){
+  const sb=document.getElementById('sidebar');
+  const ov=document.getElementById('sidebar-overlay');
+  if(isMobile()){
+    const open=sb.classList.toggle('open');
+    ov.classList.toggle('visible',open);
+  }
+}
+function closeSidebar(){
+  if(isMobile()){
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebar-overlay').classList.remove('visible');
+  }
+}
+// Auto-close sidebar on resize to desktop
+window.addEventListener('resize',()=>{
+  if(!isMobile()){
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebar-overlay').classList.remove('visible');
+  }
+});
+// Close sidebar when user selects an acta on mobile
+(function patchLoadActa(){
+  const orig=window.loadActa;
+  window.loadActa=function(id){
+    orig(id);
+    closeSidebar();
+  };
+})();
+</script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js');
+      });
+    }
+  </script>
+  <script>
+    // Mostrar slider en touch — script aislado, no depende de nada más
+    (function(){
+      function showSlider(){
+        var ctrl = document.getElementById('zoom-ctrl');
+        if(ctrl) ctrl.style.cssText = 'display:flex !important';
+        var links = document.getElementById('acta-links');
+        if(links) links.style.cssText = 'display:none !important';
+      }
+      var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+      if(isTouch){
+        if(document.readyState === 'loading'){
+          document.addEventListener('DOMContentLoaded', showSlider);
+        } else {
+          showSlider();
+        }
+      }
+    })();
+  </script>
+</body>
+</html>

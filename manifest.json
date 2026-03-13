@@ -1,0 +1,20 @@
+{
+  "name": "HCDN Votaciones",
+  "short_name": "HCDN",
+  "description": "Votaciones de la Honorable Cámara de Diputados de la Nación Argentina",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0B1628",
+  "theme_color": "#0B1628",
+  "lang": "es-AR",
+  "icons": [
+    {
+      "src": "imagen_1.jpg",
+      "sizes": "any",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["government", "politics"]
+}
